@@ -4,7 +4,7 @@ This script `create_folds.py` takes into input a folder with Odeuropa INCEpTION 
 
 To run the script you need to set the following paramethers:
 
-`--folde`: The input folder containing INCEpTION exports
+`--folder`: The input folder containing INCEpTION exports
 
 `--output`: Folder where the folds are saved
 
