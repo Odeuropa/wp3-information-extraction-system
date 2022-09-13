@@ -19,3 +19,56 @@ Usage example:
 ```
 python3 create_folds.py --folder en-webanno/ --output OutputDir --tasktype BERT --tags Smell\\_Word,Smell\\_Source,Quality
 ```
+
+
+
+# Convert English plain texts to Bert format for the classification
+
+Run the script `books_converter.py` on the folder containing the documents you want to use to extract frame elements and convert them in a format readable by the classifier.
+
+
+`--folder`: The input folder containing the books/document (plain txt, no metadata or tags)
+
+`--output`: The output folder for the converted documents
+
+`--label`: A short label used to assign an ID to the documents (so that later they can be matched with the metadata)
+
+`--books` The script allows to merge multible books into a single file, setting the value to 1 create a file for each book
+
+
+The script creates a `-meta` file outside the output folder to map the document ID with the original books.
+
+
+Usage example:
+```
+python3 books_converter.py  --folder books_folder --output output_folder --label abc --books 100
+```
+
+
+# Odeuropa Smell Classifier
+
+The models are available at this link:
+
+| https://drive.google.com/drive/u/2/folders/172lV3mZ5wc22l-SkRNw_We1YmGV4Ak-R |
+
+To install the required packages:
+
+```
+pip install -r requirements.txt
+```    
+
+Update run_classifier.sh with the right paths and run it to label all the files that can be found under input_path.
+
+
+
+# Extract Frame Elements from Bert prediction
+
+The script `extract_annotations.py` takes as input the folder with the predictions from the classifier and return a tsv with the following columns:
+
+Book - Smell_Word - Smell_Source - Quality - Full_Sentence
+
+Usage example:
+```
+python3 extract_annotations.py  [predictions_folder] > out.tsv
+```
+
