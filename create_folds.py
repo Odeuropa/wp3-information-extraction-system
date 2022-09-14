@@ -274,7 +274,7 @@ def writeFold  (foldID,fileName):
 			if l.split("\t")[1].split("-")[0] != index:
 				index = l.split("\t")[1].split("-")[0]
 				f.write("\n")	
-			f.write(l)
+			f.write(l.replace("\\", ""))
 			f.write("\n")
 	f.close()
 
