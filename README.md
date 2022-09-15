@@ -63,7 +63,7 @@ Example change for run_classifier.sh:
 
 ```
 python smell_classifier.py --model_path "bert-base-italian-uncased-odeuropa" --input_path "input_folder" \
-                           --output_path "output" --lang "italian"
+                           --output_path "output_folder" --lang "italian"
 ```
 
 # Extract Frame Elements from Bert prediction
