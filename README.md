@@ -68,7 +68,7 @@ python smell_classifier.py --model_path "bert-base-italian-uncased-odeuropa" --i
 
 The input files found in 'input_folder' must be in CONLL format with the columns: 'Document', 'Sentence-Token Num', 'Characters', 'Word', 'Label'. No header should be included to the files. The classifier updates the 'Label' column of each file and saves it in 'output_folder'. 
 
-Afterwards, to run the classifier:
+To run the classifier:
 
 ```
 bash run_classifier.sh
