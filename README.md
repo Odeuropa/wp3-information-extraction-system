@@ -59,7 +59,12 @@ pip install -r requirements.txt
 
 Update run_classifier.sh with the right paths and run it to label all the files that can be found under input_path.
 
+Example change for run_classifier.sh:
 
+```
+python smell_classifier.py --model_path "bert-base-italian-uncased-odeuropa" --input_path "input_folder" \
+                           --output_path "output_folder" --lang "italian"
+```
 
 # Extract Frame Elements from Bert prediction
 
