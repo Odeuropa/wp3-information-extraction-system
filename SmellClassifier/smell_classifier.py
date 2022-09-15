@@ -46,7 +46,8 @@ def replace_punctuation(row):
     """Error case in Italian: 'bianco', '-', 'gialliccio' -> 'bianco-gialliccio'
     Bert tokenizer uses also punctuations to separate the tokens along with the whitespaces, although we provide the
     sentences with is_split_into_words=True. Therefore, if there is a punctuation in a single word in a CONLL file
-    we cannot 100% guarantee the right decoding after classification for that specific word:
+    we cannot 100% guarantee the exact same surface realization (necessary to decide on a single label for a single word) 
+    after classification for that specific word:
     e.g., bianco-gialliccio becomes 3 separate CONLL lines: 1) bianco 2) - 3) gialliccio
     Things could have been easier and faster if we were delivering simple sentences as output instead of the exact
     CONLL file structure given as input. """
