@@ -2,16 +2,36 @@ import sys
 import os
 
 # inputFile = sys.argv[1]
-path = sys.argv[1]
+# path = sys.argv[1]
 
 tokenID =1
 textIndex = 3
 
+# smell_word_tag = "Smell_Word"
+# frameElements = ["Smell_Source","Quality"]
+
+
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--folder", help="Input folder containing texts", metavar="FOLDER", required=True)
+parser.add_argument("--output", help="Output folder", required=True)
+parser.add_argument("--smellwordtag", help="Smell word label", type=str, required=True)
+parser.add_argument("--tags", help="List of labels comma separated", metavar="TASK",  type=str , required=True)
+parser.add_argument("--stopwords", help="Stopwordsfile",  type=str , default="", required=False)
+
+args = parser.parse_args()
+
+
+path = args.folder
+outPath = args.output
+stopwordpath = args.stopwords
+smell_word_tag = args.smellwordtag
+frameElements = args.tags.split(",")
 
 
 
-smell_word_tag = "Smell\\_Word"
-frameElements = ["Smell\\_Source","Quality"]
+
 
 def pocess_annotations(myAnnotations:list):
 	annotationsDict = dict()
@@ -97,47 +117,56 @@ def dictToString (myDict):
 
 
 spamList = []
-with open("stopwords.txt", 'r') as file:
-	for line in file:
-		line = line.strip("\n")
-		spamList.append(line)
+if stopwordpath != "" :
+	with open(stopwordpath, 'r') as file:
+		for line in file:
+			line = line.strip("\n")
+			spamList.append(line)
 
 annotations_list = []
 sentence_list = []
 
 
-print("Book\tSmell_Word\tSmell_Source\tQuality\tFull_Sentence")
+# print("Book\tSmell_Word\tSmell_Source\tQuality\tFull_Sentence")
+
+with open(outPath, "w") as outfile:
+	outfile.write("Book\t"+smell_word_tag+"\t"+"\t".join(frameElements)+"\tFull_Sentence")
+	outfile.write("\n")
 
 
-for root, dirs, files in os.walk(path):
-	for name in files:
-		if name.startswith("."):
-			continue
-		with open(os.path.join(root,name), 'r') as file:
+	for root, dirs, files in os.walk(path):
+		for name in files:
+			if name.startswith("."):
+				continue
+			with open(os.path.join(root,name), 'r') as file:
 
-			for line in file:
-				line = line.strip()
-				parts = line.split("\t")
-				
-				
-				if line == "":
-					if len(annotations_list) > 1:
-						
-						dictAnnotations = pocess_annotations(annotations_list)
-						
-						if dictAnnotations != None:
-							stringToPrint = dictToString(dictAnnotations)
-							print(title+"\t"+stringToPrint+"\t"+" ".join(sentence_list))
-							if "\t\t" not in stringToPrint:
-								print(title+"\t"+stringToPrint+"\t"+" ".join(sentence_list))
-					sentence_list = []
-					annotations_list = []
-					continue
-
-				title = parts[0]
-
-				sentence_list.append(parts[textIndex])
-				for p in parts[textIndex+1:]:
-					if p != "O":
-						annotations_list.append(parts)
+				for line in file:
+					line = line.strip()
+					parts = line.split("\t")
+					
+					
+					if line == "":
+						if len(annotations_list) > 1:
+							
+							dictAnnotations = pocess_annotations(annotations_list)
+							
+							if dictAnnotations != None:
+								stringToPrint = dictToString(dictAnnotations)
+								outfile.write(title+"\t"+stringToPrint+" ".join(sentence_list))
+								outfile.write("\n")
+								if "\t\t" not in stringToPrint:
+									outfile.write(title+"\t"+stringToPrint+" ".join(sentence_list))
+									outfile.write("\n")
+						sentence_list = []
+						annotations_list = []
 						continue
+
+					title = parts[0]
+
+					sentence_list.append(parts[textIndex])
+					for p in parts[textIndex+1:]:
+						if p != "O":
+							annotations_list.append(parts)
+							continue
+
+

@@ -49,7 +49,7 @@ python3 books_converter.py  --folder books_folder --output output_folder --label
 
 The models are available at this link:
 
-| https://drive.google.com/drive/u/2/folders/172lV3mZ5wc22l-SkRNw_We1YmGV4Ak-R |
+| https://drive.google.com/drive/u/1/folders/1IfRbjNc5nAveRaAwraLpYsZJmqS3fsSM |
 
 To install the required packages:
 
