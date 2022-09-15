@@ -51,19 +51,29 @@ The models are available at this link:
 
 | https://drive.google.com/drive/u/1/folders/1IfRbjNc5nAveRaAwraLpYsZJmqS3fsSM |
 
+After the download unzip the model file and update run_classifier.sh with the model path.
+
 To install the required packages:
 
 ```
 pip install -r requirements.txt
 ```    
 
-Update run_classifier.sh with the right paths and run it to label all the files that can be found under input_path.
+Update run_classifier.sh with the right paths of the input and the output folders, the language, and the model path.
 
 Example change for run_classifier.sh:
 
 ```
 python smell_classifier.py --model_path "bert-base-italian-uncased-odeuropa" --input_path "input_folder" \
                            --output_path "output_folder" --lang "italian"
+```
+
+The input files found in 'input_folder' must be in CONLL format with the columns: 'Document', 'Sentence-Token Num', 'Characters', 'Word', 'Label'. No header should be included to the files. The classifier updates the 'Label' column of each file and saves it in 'output_folder'. 
+
+To run the classifier:
+
+```
+bash run_classifier.sh
 ```
 
 # Extract Frame Elements from Bert prediction
