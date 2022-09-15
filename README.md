@@ -68,12 +68,20 @@ python smell_classifier.py --model_path "bert-base-italian-uncased-odeuropa" --i
 
 # Extract Frame Elements from Bert prediction
 
-The script `extract_annotations.py` takes as input the folder with the predictions from the classifier and return a tsv with the following columns:
+The script `extract_annotations.py` takes as input the folder with the predictions from the classifier and return a tsv with the frame elements, the sentences from which they are extracted and the associated books.
 
-Book - Smell_Word - Smell_Source - Quality - Full_Sentence
+`--folder`: The input folder containing the predictions of the classifier
+
+`--output`: File to save the annotations
+
+`--stopwords`: file containing stopwords to be ignored during the extraction (optional)
+
+`--smellwordtag`: Label used for the smell word (usualle `Smell_Word` or `Smell\_Word`)
+
+`--tags`: List of the frame elements to extract separated by `,`
 
 Usage example:
 ```
-python3 extract_annotations.py  [predictions_folder] > out.tsv
+python3 extract_annotations.py --folder [predictions_folder] --smellwordtag Smell_Word --tags Smell_Source,Quality --stopwords stopwords.txt --output out.tsv
 ```
 
