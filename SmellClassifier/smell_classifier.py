@@ -121,7 +121,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--model_path",
-        default="bert-base-uncased-checkpoint-3192",
+        default="bert-base-uncased-odeuropa",
         action='store',
         type=str,
         help="A fine-tuned bert-base-uncased checkpoint for labeling smell frame elements."
