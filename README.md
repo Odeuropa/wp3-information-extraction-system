@@ -76,6 +76,8 @@ To run the classifier:
 bash run_classifier.sh
 ```
 
+Note: Models are chosen for the distribution regarding their overall F1 score on the labels. 
+
 # Extract Frame Elements from Bert prediction
 
 The script `extract_annotations.py` takes as input the folder with the predictions from the classifier and return a tsv with the frame elements, the sentences from which they are extracted and the associated books.
