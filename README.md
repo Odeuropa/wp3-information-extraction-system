@@ -51,6 +51,8 @@ The models are available at this link:
 
 | https://drive.google.com/drive/u/1/folders/1IfRbjNc5nAveRaAwraLpYsZJmqS3fsSM |
 
+After the download unzip the model file and update run_classifier.sh with the model path.
+
 To install the required packages:
 
 ```
