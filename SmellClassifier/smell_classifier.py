@@ -230,10 +230,7 @@ def main():
             # pad it to the length of the actual input
             if len(inps) > len(p):
                 p.extend((len(inps)-len(p)) * ['O'])
-
-            if len(inps) < len(p):
-                print(tok)
-
+                
             preds.extend(p)
 
         # adding the labels to the original data
