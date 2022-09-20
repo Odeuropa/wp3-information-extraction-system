@@ -53,7 +53,7 @@ def replace_punctuation(row):
     CONLL file structure given as input. """
     word = row['Word'].strip()
     if len(word) > 1:
-        word = word.translate(str.maketrans('', '', string.punctuation))
+        word = re.sub(r'[^a-zA-Z0-9]', '', word)
     if word is None or word == "" or word == "nan":
         word = " "
     return word
