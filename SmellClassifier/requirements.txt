@@ -4,3 +4,4 @@ transformers==4.17.0
 seqeval[gpu]==1.2.2
 sentencepiece==0.1.96
 datasets==2.0.0
+optuna==2.10.0
