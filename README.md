@@ -93,6 +93,11 @@ Pretrained model checkpoints for each language:
 - "deepset/gbert-base -> german
 - "EMBEDDIA/sloberta-> slovene
 
+Data Folders should be in the format below:
+    f'data_{language}/folds_{fold}_{split}.tsv'
+Splits are expected to be train, test, and dev ( e.g., data_english/folds_0_train.tsv or data_french/folds_4_test.tsv).
+If you need any other template for the folders, please change the line 82 in train.py depending on your needs.
+
 # Extract Frame Elements from Bert prediction
 
 The script `extract_annotations.py` takes as input the folder with the predictions from the classifier and return a tsv with the frame elements, the sentences from which they are extracted and the associated books.
