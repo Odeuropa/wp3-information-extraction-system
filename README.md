@@ -78,6 +78,13 @@ bash run_classifier.sh
 
 Note: Models are chosen for the distribution regarding their overall F1 score on the labels. 
 
+***To Train a new model:***
+Please check the train.sh file. There are 3 possible uses of the train.py: 
+
+1. Hyperparameter search - Use --hypsearch option with fold number, language, and the pretrained model to finetune. Get the best run parameters from the output and use them later for the actual training or find the right model among the hyperparameter search model runs. Folder name template is {model_name}-{language}-{fold}-hyp/run-N .
+2. Train -  Use --do_train option with fold number, language, learning_rate, train_batch_size, train_epochs and the pretrained model to finetune. To get the results on test set, --do_train can be used together with --do_test.
+3. Test - Use --do_test option with language, fold, and ''fine-tuned model''. This will only give the test scores. In order to get the predictions as an output file, please use run_classifier.sh. 
+
 # Extract Frame Elements from Bert prediction
 
 The script `extract_annotations.py` takes as input the folder with the predictions from the classifier and return a tsv with the frame elements, the sentences from which they are extracted and the associated books.
