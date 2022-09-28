@@ -79,7 +79,7 @@ def replace_punctuation(row):
 
 def read_split_fold(split='train', fold="0", lang="english", label_dict=None):
     #change the path template as needed.
-    path = 'data7labels/folds_{}_{}.tsv'.format(fold, split)
+    path = 'data_{}/folds_{}_{}.tsv'.format(lang, fold, split)
     try:
         data = pd.read_csv(path, sep='\t', skip_blank_lines=True,
                            encoding='utf-8', engine='python', quoting=csv.QUOTE_NONE,
