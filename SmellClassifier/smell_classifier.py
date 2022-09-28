@@ -37,6 +37,7 @@ def sentence_num(row):
 
 def to_label_id(row, id_dict):
     clean_tag = row['Tag'].replace("\\", "").replace("\_","_")
+    clean_tag = clean_tag.split("|")[0]
     if clean_tag not in id_dict:
         clean_tag = 'O'
     labelId = id_dict[clean_tag]
