@@ -15,7 +15,8 @@ import argparse
 import csv
 import sys
 import time
-
+from os import path
+import json
 
 device = 'cuda' if cuda.is_available() else 'cpu'
 print(device)
@@ -279,6 +280,15 @@ def main():
         )
     elif args.do_test:
         #for testing
+        if path.exists(f"{model_checkpoint}/{language}-id2label.json"):
+            ids_to_labels = json.load(open(f"{model_checkpoint}/{language}-id2label.json", "r"))
+            ids_to_labels = {int(k): v for k, v in ids_to_labels.items()}
+            labels_to_ids = {v: int(k) for k, v in ids_to_labels.items()}
+            config.label2id = labels_to_ids
+            config.id2label = ids_to_labels
+            label_list = list(labels_to_ids.values())
+            config.num_labels = len(label_list)
+            
         m = AutoModelForTokenClassification.from_pretrained(model_checkpoint, config=config)
         m.to(device)
         trainer = Trainer(m, data_collator=data_collator, tokenizer=tokenizer)
