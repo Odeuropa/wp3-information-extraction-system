@@ -15,7 +15,7 @@ import json
 import string
 
 from transformers import DataCollatorForTokenClassification,  AutoTokenizer, PreTrainedTokenizerFast
-from transformers import AutoModelForTokenClassification, Trainer
+from transformers import AutoModelForTokenClassification, Trainer, AutoConfig
 
 
 def get_file_list(path):
@@ -167,10 +167,6 @@ def main():
     if language not in ['english', 'german', 'italian', 'slovene', 'dutch', 'french']:
         raise Exception(f"Language error: {language} is not among the project languages.")
 
-    ids_to_labels = json.load(open(f"{model_checkpoint}/{language}-id2label.json", "r"))
-    ids_to_labels = {int(k): v for k, v in ids_to_labels.items()}
-    labels_to_ids = {v: int(k) for k, v in ids_to_labels.items()}
-
     Path(output_path).mkdir(parents=True, exist_ok=True)
 
     tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
@@ -179,10 +175,22 @@ def main():
     label_all_tokens = True
     data_collator = DataCollatorForTokenClassification(tokenizer)
 
-    label_list = list(labels_to_ids.values())
-
     print("Loading the model checkpoint...")
-    model = AutoModelForTokenClassification.from_pretrained(model_checkpoint, num_labels=len(label_list))
+    
+    config = AutoConfig.from_pretrained(model_checkpoint)
+    labels_to_ids = config.label2id
+    ids_to_labels = config.id2label
+    if path.exists(f"{model_checkpoint}/{language}-id2label.json"):
+        ids_to_labels = json.load(open(f"{model_checkpoint}/{language}-id2label.json", "r"))
+        ids_to_labels = {int(k): v for k, v in ids_to_labels.items()}
+        labels_to_ids = {v: int(k) for k, v in ids_to_labels.items()}
+        config.label2id = labels_to_ids
+        config.id2label = ids_to_labels
+     
+    label_list = list(labels_to_ids.values())
+    config.num_labels = len(label_list)
+
+    model = AutoModelForTokenClassification.from_pretrained(model_checkpoint, config=config)
     model.to(device)
     # Define Trainer for prediction
     test_trainer = Trainer(model, data_collator=data_collator,  tokenizer=tokenizer)
