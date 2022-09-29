@@ -150,7 +150,7 @@ def main():
         default="english",
         action='store',
         type=str,
-        help="Model Language: supported languages 'english', 'dutch', 'italian', 'slovene', 'french', 'german'"
+        help="Model Language: supported languages 'english', 'dutch', 'italian', 'slovene', 'french', 'german', 'multilingual'"
     )
     args = parser.parse_args()
 
@@ -164,7 +164,7 @@ def main():
     output_path = args.output_path
     language = args.lang.lower().strip()
 
-    if language not in ['english', 'german', 'italian', 'slovene', 'dutch', 'french']:
+    if language not in ['english', 'german', 'italian', 'slovene', 'dutch', 'french', 'multilingual']:
         raise Exception(f"Language error: {language} is not among the project languages.")
 
     Path(output_path).mkdir(parents=True, exist_ok=True)
