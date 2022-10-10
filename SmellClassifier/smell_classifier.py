@@ -180,7 +180,7 @@ def main():
     config = AutoConfig.from_pretrained(model_checkpoint)
     labels_to_ids = config.label2id
     ids_to_labels = config.id2label
-    if path.exists(f"{model_checkpoint}/{language}-id2label.json"):
+    if os.path.exists(f"{model_checkpoint}/{language}-id2label.json"):
         ids_to_labels = json.load(open(f"{model_checkpoint}/{language}-id2label.json", "r"))
         ids_to_labels = {int(k): v for k, v in ids_to_labels.items()}
         labels_to_ids = {v: int(k) for k, v in ids_to_labels.items()}
