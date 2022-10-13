@@ -12,9 +12,8 @@ from datasets import Dataset
 import time
 import pandas as pd
 import json
-import string
 
-from transformers import DataCollatorForTokenClassification,  AutoTokenizer, PreTrainedTokenizerFast
+from transformers import DataCollatorForTokenClassification, AutoTokenizer, PreTrainedTokenizerFast
 from transformers import AutoModelForTokenClassification, Trainer, AutoConfig
 
 
@@ -36,7 +35,7 @@ def sentence_num(row):
 
 
 def to_label_id(row, id_dict):
-    clean_tag = row['Tag'].replace("\\", "").replace("\_","_")
+    clean_tag = str(row['Tag']).replace("\\", "").replace("\_", "_")
     clean_tag = clean_tag.split("|")[0]
     if clean_tag not in id_dict:
         clean_tag = 'O'
@@ -74,7 +73,7 @@ def read_file(path, label_dict):
 
     labels_to_ids = label_dict
     data = data.astype({"Word": str})
- 
+
     data['Word'] = data.apply(lambda row: replace_punctuation(row), axis=1)
     data['Tag'] = data.apply(lambda row: to_label_id(row, labels_to_ids), axis=1)
     data['Num'] = data.apply(lambda row: sentence_num(row), axis=1)
@@ -144,7 +143,7 @@ def main():
         type=str,
         help="Output folder for the labeled content."
     )
-    
+
     parser.add_argument(
         "--lang",
         default="english",
@@ -176,7 +175,7 @@ def main():
     data_collator = DataCollatorForTokenClassification(tokenizer)
 
     print("Loading the model checkpoint...")
-    
+
     config = AutoConfig.from_pretrained(model_checkpoint)
     labels_to_ids = config.label2id
     ids_to_labels = config.id2label
@@ -186,20 +185,20 @@ def main():
         labels_to_ids = {v: int(k) for k, v in ids_to_labels.items()}
         config.label2id = labels_to_ids
         config.id2label = ids_to_labels
-     
+
     label_list = list(labels_to_ids.values())
     config.num_labels = len(label_list)
 
     model = AutoModelForTokenClassification.from_pretrained(model_checkpoint, config=config)
     model.to(device)
     # Define Trainer for prediction
-    test_trainer = Trainer(model, data_collator=data_collator,  tokenizer=tokenizer)
+    test_trainer = Trainer(model, data_collator=data_collator, tokenizer=tokenizer)
 
     file_list = get_file_list(folder_path)
-    file_list = list(filter(lambda file: os.stat(file).st_size > 0, file_list))
+    file_list = list(filter(lambda file: (os.stat(file).st_size > 0) and ('-meta' not in file), file_list))
 
     print("Running the prediction for each file:")
-    for f in file_list:
+    for f in sorted(file_list):
         print("Labeling {}...".format(f), end=' ')
         raw_data, test = read_file(f, label_dict=labels_to_ids)
         if test is None:
@@ -207,7 +206,7 @@ def main():
         test_dataset = Dataset.from_pandas(test)
         tokenized_test = test_dataset.map(lambda x: tokenize_and_align_labels(x, tokenizer, label_all_tokens),
                                           batched=True)
-        #tokenized_test features: ['sentence', 'word_labels', 'Document', 'Num', 'input_ids', 'token_type_ids',
+        # tokenized_test features: ['sentence', 'word_labels', 'Document', 'Num', 'input_ids', 'token_type_ids',
         # 'attention_mask', 'labels']
         predictions, labels, _ = test_trainer.predict(tokenized_test)
         predictions = np.argmax(predictions, axis=2)
@@ -225,11 +224,12 @@ def main():
         for tok, lab, inps in zip(true_tokens, true_predictions, test['word_labels']):
             p = []
             for t, l in zip(tok, lab):
-                if language in ["french", "slovene"]: # for roberta based models, the subword signs are different than bert based models
+                if language in ["french",
+                                "slovene"]:  # for roberta based models, the subword signs are different than bert based models
                     if not t.startswith("▁"):
                         toks[-1] = toks[-1] + t
                         continue
-                elif t.startswith("##"): # for bert based models
+                elif t.startswith("##"):  # for bert based models
                     toks[-1] = toks[-1] + t.replace("##", "")
                     continue
 
@@ -239,8 +239,8 @@ def main():
             # if the sentence is problematic and too long, it won't fit to the model so the predictions will be shorter
             # pad it to the length of the actual input
             if len(inps) > len(p):
-                p.extend((len(inps)-len(p)) * ['O'])
-                
+                p.extend((len(inps) - len(p)) * ['O'])
+
             preds.extend(p)
 
         # adding the labels to the original data
