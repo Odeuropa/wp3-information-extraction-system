@@ -59,6 +59,8 @@ for root, dirs, files in os.walk(path):
                     parts = line.split(" ")
 
                     for token in parts:
+                        if len(token)<1:
+                            continue
                         tokenID = str(sentence_counter) + "-" + str(word_counter)
                         outFile.write(labelID + str(book_counter) + "\t" + tokenID + "\t-\t" + token + "\tO\n")
 
