@@ -54,7 +54,7 @@ def replace_punctuation(row):
     CONLL file structure given as input. """
     word = row['Word'].strip()
     if len(word) > 1:
-        word = re.sub(r'[^a-zA-Z0-9]', '', word)
+        word = re.sub(r'[^a-zA-Z0-9àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ]', '', word)
     if word is None or word == "" or word == "nan":
         word = " "
     return word
@@ -80,8 +80,8 @@ def read_file(path, label_dict):
 
     data = data.astype({"Num": int})
     data.set_index(['Document', 'Num'])
-    df = data.groupby(['Document', 'Num'])['Word'].apply(list)
-    df2 = data.groupby(['Document', 'Num'])['Tag'].apply(list)
+    df = data.groupby(['Document', 'Num'], sort = False)['Word'].apply(list)
+    df2 = data.groupby(['Document', 'Num'], sort = False)['Tag'].apply(list)
     mergeddf = pd.merge(df, df2, on=['Document', 'Num'])
     mergeddf.rename(columns={'Word': 'sentence', 'Tag': 'word_labels'}, inplace=True)
 
