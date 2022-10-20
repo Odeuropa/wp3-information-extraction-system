@@ -251,7 +251,7 @@ def main():
             x.loc[-1] = np.nan
             return x
 
-        raw_data = raw_data.astype(str).groupby(['Document', 'Num'], as_index=True).apply(blanks)
+        raw_data = raw_data.astype(str).groupby(['Document', 'Num'], as_index=True, sort = False).apply(blanks)
         raw_data.drop('Num', inplace=True, axis=1)
 
         name = Path(f).name
