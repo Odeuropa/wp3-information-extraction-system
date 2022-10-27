@@ -54,6 +54,7 @@ for root, dirs, files in os.walk(path):
                     if len(line) < 1:
                         continue
                     accented_chars = 'àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ'
+                    line = re.sub(r'\t', ' ', line)
                     line = re.sub(r'([^a-zA-Z' + accented_chars + '0-9])', ' \\1 ', line)
                     line = re.sub(' +', ' ', line)
                     parts = line.split(" ")
