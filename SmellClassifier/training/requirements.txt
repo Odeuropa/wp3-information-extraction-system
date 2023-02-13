@@ -1,0 +1,4 @@
+pandas==1.5.1
+torch==1.13.1
+transformers==4.25.1
+seqeval==1.2.2
