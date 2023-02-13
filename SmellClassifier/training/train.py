@@ -128,7 +128,7 @@ def read_split_fold(split='train', fold="0", lang="english", label_dict=None):
 
 
 def tokenize_and_align_labels(examples, tokenizer, label_all_tokens=True):
-    tokenized_inputs = tokenizer(examples["sentence"], truncation=True, is_split_into_words=True)
+    tokenized_inputs = tokenizer(examples["sentence"], max_length=512, truncation=True, is_split_into_words=True)
 
     labels = []
     for i, label in enumerate(examples["word_labels"]):
