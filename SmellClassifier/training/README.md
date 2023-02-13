@@ -1,6 +1,9 @@
 # odeuropa-train-classifier
 ***To install the requirements:***
+
+```
 pip install -r requirements.txt
+```
 
 ***To Train a new model:***
 Please check the train.sh file. 
