@@ -98,3 +98,11 @@ Usage example:
 python3 extract_annotations.py --folder [predictions_folder] --smellwordtag Smell_Word --tags Smell_Source,Quality --stopwords stopwords.txt --output out.tsv
 ```
 
+
+
+## Funding acknowledgement
+
+<img src="https://github.com/Odeuropa/.github/raw/main/profile/eu-logo.png" width="80" height="54" align="left" alt="EU logo" />
+
+This work has been realised in the context of [Odeuropa](https://odeuropa.eu/), a research project that has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No. 101004469.
+
