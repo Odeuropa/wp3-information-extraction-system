@@ -2,7 +2,7 @@
 from torch import cuda
 
 import transformers
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, AutoConfig
 from transformers import DataCollatorForTokenClassification, AutoConfig
 from transformers import AutoModelForTokenClassification, TrainingArguments, Trainer
 
@@ -18,8 +18,20 @@ import time
 from os import path
 import json
 
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
+
+
 device = 'cuda' if cuda.is_available() else 'cpu'
-print(device)
+print('Device is:', device)
 
 seed = 22
 transformers.set_seed(seed)
@@ -28,9 +40,9 @@ transformers.set_seed(seed)
 Models Used are:
 model_checkpoint = "dbmdz/bert-base-italian-uncased" -> italian
 model_checkpoint = "bert-base-uncased" -> english
-model_checkpoint = "camembert-base" -> french
-model_checkpoint = "GroNLP/bert-base-dutch-cased" -> dutch
-model_checkpoint = "deepset/gbert-base -> german
+model_checkpoint = "camembert-base" -> french, pjox/dalembert -> historical text. {'learning_rate': 2e-05, 'per_device_train_batch_size': 4, 'num_train_epochs': 4}
+model_checkpoint = "GroNLP/bert-base-dutch-cased" -> dutch 'learning_rate': 2e-05, 'per_device_train_batch_size': 8, 'num_train_epochs': 8. emanjavacas/GysBERT
+model_checkpoint = "deepset/gbert-base -> german, AH: redewiedergabe/bert-base-historical-german-rw-cased, {'learning_rate': 4e-05, 'per_device_train_batch_size': 8, 'num_train_epochs': 6}.
 model_checkpoint = "EMBEDDIA/sloberta-> slovene
 """
 
@@ -50,6 +62,7 @@ def to_label_id(row, id_dict):
 
 
 def to_clean_label(row):
+    #print(row['Document'], row['Sentence-Token'], row['Chars'], row['Word'].encode('utf-8'), row['Tag'])
     clean_tag = row['Tag'].replace("\\", "").replace("\_","_")
     clean_tag = clean_tag.split('|')[0]
     clean_tag = clean_tag.replace("B-I-", "B-")
@@ -80,11 +93,13 @@ def replace_punctuation(row):
 
 def read_split_fold(split='train', fold="0", lang="english", label_dict=None):
     #change the path template as needed.
-    path = 'data_{}/folds_{}_{}.tsv'.format(lang, fold, split)
+    path = '../../../folds/data_{}/folds_{}_{}.tsv'.format(lang, fold, split)
+    print('the file path in read_split_fold: ', path)
+#     input("Press Enter to continue...")
     try:
         data = pd.read_csv(path, sep='\t', skip_blank_lines=True,
                            encoding='utf-8', engine='python', quoting=csv.QUOTE_NONE,
-                           names=['Document', 'Sentence-Token', 'Chars', 'Word', 'Tag', 'Empty'], header=None)
+                           names=['Document', 'Sentence-Token', 'Chars', 'Word', 'Tag','Empty'], header=None)
     except:
         print(f"Cannot read the file {path}")
         if split == "train":
@@ -95,6 +110,7 @@ def read_split_fold(split='train', fold="0", lang="english", label_dict=None):
     data.drop('Empty', inplace=True, axis=1)
 
     #For the reusability purposes, we still extract the label ids from the training data.
+    #print('row[Tag]', end=':')
     data['Tag'] = data.apply(lambda row: to_clean_label(row), axis=1)
 
     print("Number of tags: {}".format(len(data.Tag.unique())))
@@ -127,7 +143,7 @@ def read_split_fold(split='train', fold="0", lang="english", label_dict=None):
     return mergeddf, labels_to_ids, ids_to_labels
 
 
-def tokenize_and_align_labels(examples, tokenizer, label_all_tokens=True):
+def tokenize_and_align_labels(examples, tokenizer, label_all_tokens=False):
     tokenized_inputs = tokenizer(examples["sentence"], max_length=512, truncation=True, is_split_into_words=True)
 
     labels = []
@@ -166,7 +182,7 @@ def cn_hp_space(trial):
 
 def main():
     parser = argparse.ArgumentParser(description='Training with Folds')
-    parser.add_argument("--lang", help="Languages: english,german, slovene, dutch, multilingual, french, italian",
+    parser.add_argument("--lang", help="Languages: english, german, slovene, dutch, multilingual, french, italian",
                         default="english")
     parser.add_argument("--fold", help="Fold Name", default="0")
     parser.add_argument("--hypsearch", help="Flag for Hyperparameter Search", action='store_true')
@@ -183,7 +199,14 @@ def main():
     model_checkpoint = args.model
     fold = str(args.fold)
     language = str(args.lang).strip().lower()
-    tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
+    
+    print(f'Language: {language}, fold: {fold}, model_checkpoint: {model_checkpoint}')
+    
+    if 'pjox/dalembert' in model_checkpoint:
+        tokenizer = AutoTokenizer.from_pretrained(model_checkpoint, add_prefix_space=True)
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
+        
     assert isinstance(tokenizer, transformers.PreTrainedTokenizerFast)
 
     if language not in ['english', 'german', 'italian', 'slovene', 'dutch', 'french']:
@@ -222,7 +245,8 @@ def main():
         tr_args = TrainingArguments(
             f"{model_name}-{language}-{fold}-hyp",
             evaluation_strategy="epoch",
-            save_strategy="epoch",
+            #save_strategy="epoch",
+            save_strategy="no",
             per_device_eval_batch_size=8,
             warmup_ratio=0.1,
             seed=22,
@@ -232,7 +256,8 @@ def main():
         tr_args = TrainingArguments(
             f"{model_name}-{language}-{fold}",
             evaluation_strategy="epoch",
-            save_strategy="epoch",
+            #save_strategy="epoch",
+            save_strategy="no",
             learning_rate=args.learning_rate,
             per_device_train_batch_size=args.train_batch_size,
             per_device_eval_batch_size=8,
@@ -310,6 +335,10 @@ def main():
         test_dataset = Dataset.from_pandas(test, split="test")
         tokenized_test = test_dataset.map(lambda x: tokenize_and_align_labels(x, tokenizer),
                                           batched=True)
+        
+        #print('test[:1]:', tokenized_test[:1]['sentence'])
+        #print('test[:3][sentence]:', tokenized_test[:3]['sentence'])
+        #print('test[:3][Document]:', tokenized_test[:3]['Document'])
 
         predictions, labels, _ = trainer.predict(tokenized_test)
         predictions = np.argmax(predictions, axis=2)
@@ -322,10 +351,28 @@ def main():
             [ids_to_labels[l] for (p, l) in zip(prediction, label) if l != -100]
             for prediction, label in zip(predictions, labels)
         ]
+        
+        print("true_predictions:", true_predictions[:3])
+        print("true_labels:", true_labels[:3])
 
         results = metric.compute(predictions=true_predictions, references=true_labels)
         print("\n")
         print(results)
+        
+        data_and_results = {}
+        data_and_results['scores'] = results
+        data_and_results['sentences_as_tokens'] = tokenized_test['sentence']
+        data_and_results['document'] = tokenized_test['Document']
+        data_and_results['predictions'] = true_predictions
+        data_and_results['gold_labels'] = true_labels
+        
+        output_file_name = f"{model_checkpoint}_{language}_fld{fold}_lr{args.learning_rate}_tbs{args.train_batch_size}_te{args.train_epochs}.json"
+        output_file_name = 'outputs/'+output_file_name.replace('/','_')
+        print('output_file_name:', output_file_name)
+        
+        with open(output_file_name, 'w') as fw:
+            json.dump(data_and_results, fw, indent=4, sort_keys=True, ensure_ascii=True, allow_nan=True, cls=NpEncoder)
+        
 
 
 if __name__ == "__main__":
